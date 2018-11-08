@@ -5,11 +5,9 @@ const router = express.Router()
 const knex = require('../db/connection')
 
 router.get('/', (req, res) => {
-  //refactor to implament a knex join to have the side as well
-  // side: 'light'
   knex('character')
     .select('character.id', 'character.name', 'character.height', 'character.mass', 'force.side')
-    .leftJoin('force', 'force.id', 'character.force_id')
+    .innerJoin('force', 'force.id', 'character.force_id')
     .orderBy('character.id', 'asc')
     .then(characters => {
       // Can only res.json once we have received the response/data from the db
@@ -22,10 +20,12 @@ router.get('/:id', (req, res, next) => {
   const id = req.params.id
 
   knex('character')
-    .where('id', id)
+    .select('character.id', 'character.name', 'character.height', 'character.mass', 'force.side')
+    .innerJoin('force', 'force.id', 'character.force_id')
+    .where('character.id', id)
     .then(character => {
       res.json({ character: character[0] })
-    })
+    })  
 })
 
 
