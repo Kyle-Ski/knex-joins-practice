@@ -6,25 +6,26 @@ const knex = require('../db/connection')
 
 router.get('/', (req, res) => {
   knex('character')
-    .select('character.id', 'character.name', 'character.height', 'character.mass', 'force.side')
+    .select('character.id', 'character.name', 'movie.title', 'character.height', 'character.mass', 'force.side')
     .innerJoin('force', 'force.id', 'character.force_id')
+    .innerJoin('character_movie', 'character.id', 'character_movie.character_id')
+    .innerJoin('movie', 'movie.id', 'character_movie.movie_id')
     .orderBy('character.id', 'asc')
     .then(characters => {
-      // Can only res.json once we have received the response/data from the db
       res.json({ characters: characters })
     })
 })
 
 router.get('/:id', (req, res, next) => {
-  // Grab the id of the character we want from the request URL parameters
   const id = req.params.id
-
   knex('character')
-    .select('character.id', 'character.name', 'character.height', 'character.mass', 'force.side')
-    .innerJoin('force', 'force.id', 'character.force_id')
-    .where('character.id', id)
+  .select('character.id', 'character.name', 'movie.title', 'character.height', 'character.mass', 'force.side')
+  .innerJoin('force', 'force.id', 'character.force_id')
+  .innerJoin('character_movie', 'character.id', 'character_movie.character_id')
+  .innerJoin('movie', 'movie.id', 'character_movie.movie_id')
+  .where('character.id', id)
     .then(character => {
-      res.json({ character: character[0] })
+      res.json({ character: character })
     })  
 })
 
